@@ -38,7 +38,7 @@ class TransactionalInstaller:
             raise InstallationError(f"Fallo durante la instalación: {e}")
 
     def _find_manifest(self, source_path: Path) -> Optional[Path]:
-        for filename in ["module.json", "app.json", "lib.json"]:
+        for filename in ["__meta__.py", "app.json", "lib.json"]:
             path = source_path / filename
             if path.exists():
                 return path

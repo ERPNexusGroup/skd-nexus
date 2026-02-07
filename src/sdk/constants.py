@@ -5,7 +5,7 @@ APP_PREFIX = "app_"
 LIB_PREFIXES = ("lib_", "pkg_")
 
 MANIFEST_FILES = {
-    "module": "module.json",
+    "module": "__meta__.py",
     "app": "app.json",
     "lib": "lib.json"
 }

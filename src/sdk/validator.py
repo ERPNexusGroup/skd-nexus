@@ -1,42 +1,48 @@
-import json
+# src/sdk/validator.py
 from pathlib import Path
-from typing import Union, Dict, Any
-from pydantic import ValidationError as PydanticValidationError
-
-from .schemas import ModuleSchema, AppSchema, LibSchema
+from typing import Union
+from .schemas.meta_schema import ModuleMetaSchema, AppMetaSchema
 from .exceptions import ValidationError
-from .constants import MANIFEST_FILES
+from .utils.meta_parser import parse_meta_file
+
 
 class ComponentValidator:
-    """Validador de componentes Nexus."""
+    """Validador seguro que NO ejecuta código de __meta__.py"""
 
-    def validate_manifest(self, path: Path) -> Union[ModuleSchema, AppSchema, LibSchema]:
-        """Valida el manifiesto en la ruta dada."""
-        if not path.exists():
-            raise ValidationError(f"La ruta {path} no existe.")
+    def validate_manifest(self, path: Path) -> Union[ModuleMetaSchema, AppMetaSchema]:
+        """
+        Valida __meta__.py en el directorio del componente
 
-        manifest_data = self._load_json(path)
-        
-        if path.name == MANIFEST_FILES["module"]:
-            return self._validate_schema(ModuleSchema, manifest_data)
-        elif path.name == MANIFEST_FILES["app"]:
-            return self._validate_schema(AppSchema, manifest_data)
-        elif path.name == MANIFEST_FILES["lib"]:
-            return self._validate_schema(LibSchema, manifest_data)
+        Args:
+            path: Ruta al DIRECTORIO del componente (no al archivo __meta__.py)
+        """
+        if not path.exists() or not path.is_dir():
+            raise ValidationError(f"Ruta inválida (debe ser directorio): {path}")
+
+        meta_path = path / "__meta__.py"
+        if not meta_path.exists():
+            raise ValidationError(f"Falta __meta__.py en {path}")
+
+        # Parsear seguro con AST
+        metadata_dict = parse_meta_file(meta_path)
+
+        # Validar campos obligatorios mínimos
+        required_fields = [
+            "technical_name", "display_name", "component_type",
+            "package_type", "python", "erp_version", "version"
+        ]
+        missing = [f for f in required_fields if f not in metadata_dict]
+        if missing:
+            raise ValidationError(f"Campos obligatorios faltantes: {', '.join(missing)}")
+
+        # Validar según tipo de componente
+        component_type = metadata_dict["component_type"]
+        if component_type == "module":
+            return ModuleMetaSchema(**metadata_dict)
+        elif component_type == "app":
+            return AppMetaSchema(**metadata_dict)
         else:
-            raise ValidationError(f"Nombre de archivo de manifiesto desconocido: {path.name}")
-
-    def _load_json(self, path: Path) -> Dict[str, Any]:
-        try:
-            with open(path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except json.JSONDecodeError as e:
-            raise ValidationError(f"Error al decodificar JSON en {path}: {e}")
-        except Exception as e:
-            raise ValidationError(f"Error al leer el archivo {path}: {e}")
-
-    def _validate_schema(self, schema_cls, data: Dict[str, Any]):
-        try:
-            return schema_cls(**data)
-        except PydanticValidationError as e:
-            raise ValidationError(f"Error de validación: {e}")
+            raise ValidationError(
+                f"component_type inválido: '{component_type}' "
+                f"(valores permitidos: 'module', 'app')"
+            )

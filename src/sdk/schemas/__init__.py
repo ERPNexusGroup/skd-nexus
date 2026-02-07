@@ -1,6 +1,10 @@
-from .module_schema import ModuleSchema
-from .app_schema import AppSchema
-from .lib_schema import LibSchema
+# src/sdk/schemas/__init__.py
+from .meta_schema import ModuleMetaSchema, AppMetaSchema, BaseMetaSchema
 from .dependency_schema import DependencySchema
 
-__all__ = ["ModuleSchema", "AppSchema", "LibSchema", "DependencySchema"]
+__all__ = [
+    "ModuleMetaSchema",
+    "AppMetaSchema",
+    "DependencySchema",
+    "BaseMetaSchema",
+]
