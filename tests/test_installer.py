@@ -26,7 +26,7 @@ def test_installer_rollback(tmp_path):
     # Crear un módulo válido para intentar instalar
     source = tmp_path / "mod_source"
     source.mkdir()
-    with open(source / "module.json", "w") as f:
+    with open(source / "__meta__.py", "w") as f:
         f.write('{"name": "mod_test", "version": "1.0.0", "description": "d", "author": "a", "email": "a@a.com"}')
         
     target = tmp_path / "mod_target"

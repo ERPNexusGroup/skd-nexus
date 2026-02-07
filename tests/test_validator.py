@@ -15,9 +15,9 @@ def valid_module_path(tmp_path):
         "author": "Test",
         "email": "test@example.com"
     }
-    with open(d / "module.json", "w") as f:
+    with open(d / "__meta__.py", "w") as f:
         json.dump(manifest, f)
-    return d / "module.json"
+    return d / "__meta__.py"
 
 def test_validate_valid_module(valid_module_path):
     validator = ComponentValidator()
@@ -35,7 +35,7 @@ def test_validate_invalid_name(tmp_path):
         "author": "Test",
         "email": "test@example.com"
     }
-    p = d / "module.json"
+    p = d / "__meta__.py"
     with open(p, "w") as f:
         json.dump(manifest, f)
 

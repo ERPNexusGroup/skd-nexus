@@ -57,7 +57,7 @@ from erp_nexus_sdk.validator import ComponentValidator
 
 validator = ComponentValidator()
 try:
-    schema = validator.validate_manifest(Path("./mod_ventas/module.json"))
+    schema = validator.validate_manifest(Path("./mod_ventas/__meta__.py"))
     print(f"Módulo válido: {schema.name} v{schema.version}")
 except Exception as e:
     print(f"Error: {e}")
