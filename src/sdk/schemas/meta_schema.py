@@ -50,7 +50,7 @@ class BaseMetaSchema(BaseModel):
     )
     display_name: str = Field(..., min_length=3, max_length=100)
     component_type: Literal["module", "app"] = Field(...)
-    package_type: Literal["core", "extension", "library", "integration"] = Field(...)
+    package_type: Literal["extension", "ui"] = Field(...)
     domain: Optional[str] = None
 
     # ===== COMPATIBILIDAD (OBLIGATORIO) =====
@@ -58,7 +58,7 @@ class BaseMetaSchema(BaseModel):
     erp_version: str = Field(">=0.1.0", description="Versión mínima del core ERP")
     geo_restrictions: GeoRestrictions = Field(default_factory=GeoRestrictions)
 
-    # ===== DISTRIBUCIÓN (OBLIGATORIO) =====
+    # ===== DISTRIBUTION (OBLIGATORIO) =====
     version: str = Field(..., description="Versión semver (ej: 1.2.0)")
     license: str = Field("MIT", description="Licencia de distribución")
     keywords: List[str] = Field(default_factory=list, max_items=30)
