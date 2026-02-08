@@ -18,8 +18,9 @@ from .schemas.meta_schema import (
     BaseMetaSchema,
 )
 from .utils.meta_parser import parse_meta_file
+
 # Exportar clases principales para API pública
-from .validator import ComponentValidator
+from .validation.component_validator import ComponentValidator
 
 __version__ = "0.2.0"
 
