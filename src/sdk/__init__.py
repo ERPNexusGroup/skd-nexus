@@ -4,45 +4,43 @@ ERP NEXUS SDK
 =============
 SDK puro Python para definir y validar componentes compatibles con ERP NEXUS.
 """
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # Exportar clases principales para API pública
-from .validator import ComponentValidator
+# from bk.validator import ComponentValidator
 from .schemas.meta_schema import (
     ModuleMetaSchema,
     AppMetaSchema,
     BaseMetaSchema,
 )
-from .schemas.dependency_schema import DependencySchema
-from .exceptions import (
-    NexusSDKError,
-    ValidationError,
-    DependencyError,
-    InstallationError,
-)
-from .contracts import StorageBackend
-from .utils.meta_parser import parse_meta_file
+# from bk.exceptions import (
+#     NexusSDKError,
+#     ValidationError,
+#     DependencyError,
+#     InstallationError,
+# )
+# from bk.contracts import StorageBackend
+# from .utils.meta_parser import parse_meta_file
+
+__version__ = "0.2.0"
 
 # Definir API pública explícita
 __all__ = [
     # Validación
-    "ComponentValidator",
-    "parse_meta_file",
+    # "ComponentValidator",
+    # "parse_meta_file",
 
     # Esquemas
     "ModuleMetaSchema",
     "AppMetaSchema",
-    "LibMetaSchema",
     "BaseMetaSchema",
-    "CreatorInfo",
-    "DependencySchema",
 
     # Excepciones
-    "NexusSDKError",
-    "ValidationError",
-    "DependencyError",
-    "InstallationError",
+    # "NexusSDKError",
+    # "ValidationError",
+    # "DependencyError",
+    # "InstallationError",
 
     # Contratos
-    "StorageBackend",
+    # "StorageBackend",
 ]

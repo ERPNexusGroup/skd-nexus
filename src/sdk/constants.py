@@ -1,15 +1,4 @@
-# Constantes globales del SDK
-
-MODULE_PREFIX = "mod_"
-APP_PREFIX = "app_"
-LIB_PREFIXES = ("lib_", "pkg_")
-
-MANIFEST_FILES = {
-    "module": "__meta__.py",
-    "app": "app.json",
-    "lib": "lib.json"
-}
-
-REQUIRED_MODULE_FIELDS = ["name", "version", "description", "author", "email"]
-REQUIRED_APP_FIELDS = ["name", "version", "description", "parent_module"]
-REQUIRED_LIB_FIELDS = ["name", "version", "description"]
+META_TEMPLATE_VERSION = "2.0"
+META_SCHEMA_VERSION = "2.0"
+DEFAULT_PYTHON = ">=3.11"
+DEFAULT_ERP_VERSION = ">=0.1.0"
