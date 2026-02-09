@@ -8,3 +8,7 @@ class CircularDependencyError(DependencyError):
 
 class MissingDependencyError(DependencyError):
     pass
+
+
+class VersionConflictError(DependencyError):
+    pass

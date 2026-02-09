@@ -1,61 +1,58 @@
-from typing import Dict, List
-
+from pathlib import Path
 from .dependency_graph import DependencyGraph
-from .exceptions import (
-    CircularDependencyError,
-    MissingDependencyError,
-)
+from .errors import MissingDependencyError
+from .version_resolver import VersionResolver
+from .. import ValidationError
+from ..utils.meta_parser import parse_meta_file
 
 
 class DependencyResolver:
 
-    def __init__(self, components_meta: Dict[str, object]):
-        """
-        components_meta:
-        {
-            "hotel_reservations": BaseMetaSchema,
-            "billing_core": BaseMetaSchema
-        }
-        """
-        self.components_meta = components_meta
+    def __init__(self):
         self.graph = DependencyGraph()
+        self.components = {}
 
-    def build_graph(self):
+    def load_component(self, path: Path):
+        path = path.resolve()
 
-        for name, meta in self.components_meta.items():
-            self.graph.add_component(name)
+        meta_path = path / "__meta__.py"
+        if not meta_path.exists():
+            raise FileNotFoundError(
+                f"No se encontró __meta__.py en {path}. "
+                f"¿Es un componente ERP NEXUS válido?"
+            )
 
-            for dep in meta.depends:
-                if dep not in self.components_meta:
+        meta = parse_meta_file(path / "__meta__.py")
+
+        if meta["technical_name"] != path.name:
+            raise ValidationError(
+                f"El directorio '{path.name}' no coincide con technical_name "
+                f"'{meta['technical_name']}'"
+            )
+
+        name = meta["technical_name"]
+
+        self.components[name] = meta
+        self.graph.add_node(name)
+
+        for dep in meta.get("depends", []):
+            self.graph.add_dependency(name, dep)
+
+    def resolve(self) -> dict:
+        """
+        Devuelve plan de instalación
+        """
+        # Validar dependencias faltantes
+        for name, meta in self.components.items():
+            for dep in meta.get("depends", []):
+                if dep not in self.components:
                     raise MissingDependencyError(
-                        f"{name} depende de '{dep}' pero no está disponible"
+                        f"{name} depende de {dep} que no está cargado"
                     )
-                self.graph.add_dependency(name, dep)
 
-    def resolve_install_order(self) -> List[str]:
+        order = self.graph.topological_sort()
 
-        visited = set()
-        temp = set()
-        result = []
-
-        def visit(node: str):
-
-            if node in temp:
-                raise CircularDependencyError(
-                    f"Ciclo detectado en dependencias: {node}"
-                )
-
-            if node not in visited:
-                temp.add(node)
-
-                for dep in self.graph.edges(node):
-                    visit(dep)
-
-                temp.remove(node)
-                visited.add(node)
-                result.append(node)
-
-        for node in self.graph.nodes():
-            visit(node)
-
-        return result
+        return {
+            "install_order": order,
+            "total": len(order),
+        }
