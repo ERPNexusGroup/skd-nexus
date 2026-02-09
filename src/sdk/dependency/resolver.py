@@ -2,7 +2,7 @@ from pathlib import Path
 from .dependency_graph import DependencyGraph
 from .errors import MissingDependencyError
 from .version_resolver import VersionResolver
-from .. import ValidationError
+from .. import ValidationError, BaseMetaSchema
 from ..utils.meta_parser import parse_meta_file
 
 
@@ -10,33 +10,28 @@ class DependencyResolver:
 
     def __init__(self):
         self.graph = DependencyGraph()
-        self.components = {}
+        self.components: dict[str, BaseMetaSchema] = {}
 
     def load_component(self, path: Path):
         path = path.resolve()
-
         meta_path = path / "__meta__.py"
+
         if not meta_path.exists():
-            raise FileNotFoundError(
-                f"No se encontró __meta__.py en {path}. "
-                f"¿Es un componente ERP NEXUS válido?"
-            )
+            raise FileNotFoundError(f"No se encontró __meta__.py en {path}")
 
-        meta = parse_meta_file(path / "__meta__.py")
+        meta_dict = parse_meta_file(meta_path)
+        meta = BaseMetaSchema(**meta_dict)
 
-        if meta["technical_name"] != path.name:
+        if meta.technical_name != path.name:
             raise ValidationError(
-                f"El directorio '{path.name}' no coincide con technical_name "
-                f"'{meta['technical_name']}'"
+                f"El directorio '{path.name}' no coincide con technical_name '{meta.technical_name}'"
             )
 
-        name = meta["technical_name"]
+        self.components[meta.technical_name] = meta
+        self.graph.add_node(meta.technical_name)
 
-        self.components[name] = meta
-        self.graph.add_node(name)
-
-        for dep in meta.get("depends", []):
-            self.graph.add_dependency(name, dep)
+        for dep in meta.depends:
+            self.graph.add_dependency(meta.technical_name, dep)
 
     def resolve(self) -> dict:
         """
@@ -44,10 +39,11 @@ class DependencyResolver:
         """
         # Validar dependencias faltantes
         for name, meta in self.components.items():
-            for dep in meta.get("depends", []):
+            for dep in meta.depends:
                 if dep not in self.components:
                     raise MissingDependencyError(
-                        f"{name} depende de {dep} que no está cargado"
+                        f"'{name}' depende de '{dep}', "
+                        f"pero no está cargado. Disponibles: {list(self.components.keys())}"
                     )
 
         order = self.graph.topological_sort()
