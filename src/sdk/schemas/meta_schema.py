@@ -61,7 +61,7 @@ class BaseMetaSchema(BaseModel):
     # ===== DISTRIBUTION (OBLIGATORIO) =====
     version: str = Field(..., description="Versión semver (ej: 1.2.0)")
     license: str = Field("MIT", description="Licencia de distribución")
-    keywords: List[str] = Field(default_factory=list, max_items=30)
+    keywords: List[str] = Field(default_factory=list, max_length=30)
     description: Optional[str] = Field(None, min_length=20, max_length=2000)
     website: Optional[str] = None
     authors: List[AuthorInfo] = Field(default_factory=list)
