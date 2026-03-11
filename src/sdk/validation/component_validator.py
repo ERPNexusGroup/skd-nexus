@@ -28,3 +28,9 @@ class ComponentValidator:
         self.dependency_validator.validate_dependencies(meta_model)
 
         return meta_model
+
+    def validate_manifest(self, component_path: Path) -> BaseMetaSchema:
+        """
+        Alias estable para compatibilidad con CLI.
+        """
+        return self.validate_component(component_path)
